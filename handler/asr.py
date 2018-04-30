@@ -13,7 +13,7 @@ async def asr(request):
         payload = {
             'format': 'pcm',
             'rate': 16000,
-            'dev_pid': 1537,
+            'dev_pid': 1536,
             'channel': 1,
             'token': token,
             'cuid': 'foschool',
@@ -24,7 +24,7 @@ async def asr(request):
         payload = {
             'format': 'pcm',
             'rate': 16000,
-            'dev_pid': 1537,
+            'dev_pid': 1536,
             'channel': 1,
             'token': token,
             'cuid': 'foschool',
