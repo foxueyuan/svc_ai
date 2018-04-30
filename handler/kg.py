@@ -15,7 +15,7 @@ async def entity_annotation(request):
     if 'text' in data and len(data['text']) < 64:
         async with aiohttp.ClientSession() as session:
             async with session.post(url, json={'data': data['text']}) as resp:
-                resp_json = await resp.json(encoding='gbk')
+                resp_json = await resp.json()
 
         result['entity_annotation'] = resp_json['entity_annotation']
     else:
