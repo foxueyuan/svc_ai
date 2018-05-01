@@ -31,3 +31,4 @@ TENCENT_AI_APPID = '1106800137'
 TENCENT_AI_APPKEY = 'YYcRW7I5J6L8RpQF'
 
 SVC_WORDCOM_URL = 'https://api.ai.qq.com/fcgi-bin/nlp/nlp_wordcom'
+SVC_TEXTCHAT_URL = 'https://api.ai.qq.com/fcgi-bin/nlp/nlp_textchat'

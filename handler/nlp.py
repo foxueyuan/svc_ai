@@ -140,3 +140,26 @@ async def wordcom(request):
         result['errmsg'] = '缺少text参数'
 
     return response.json(result)
+
+
+async def textchat(request):
+    conf = request.app.config
+    data = request.json
+
+    result = {'errcode': 0, 'errmsg': 'ok'}
+
+    if 'text' in data:
+        if 'session' not in data:
+            data['session'] = uuid.uuid1().hex
+        req_data = await gen_tencent_ai_nlp_req_dict(data)
+        async with aiohttp.ClientSession() as session:
+            async with session.post(conf.SVC_TEXTCHAT_URL, data=req_data) as resp:
+                resp_json = await resp.json()
+
+        result.update(resp_json.get('data', {}))
+
+    else:
+        result['errcode'] = 20001
+        result['errmsg'] = '缺少text参数'
+
+    return response.json(result)
