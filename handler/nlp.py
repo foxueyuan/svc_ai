@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import aiohttp
+import hashlib
+import time
+import uuid
+from urllib.parse import urlencode
 from sanic import response
 
 
@@ -89,6 +93,46 @@ async def spam(request):
                 resp_json = await resp.json()
 
         result.update(resp_json.get('result', {'spam': 0}))
+
+    else:
+        result['errcode'] = 20001
+        result['errmsg'] = '缺少text参数'
+
+    return response.json(result)
+
+
+async def gen_tencent_ai_nlp_req_dict(req_dict):
+        app_id = '1106800137'
+        app_key = 'YYcRW7I5J6L8RpQF'
+
+        req_dict['app_id'] = app_id
+        req_dict['time_stamp'] = int(time.time())
+        req_dict['nonce_str'] = uuid.uuid1().hex
+
+        sort_dict = sorted(req_dict.items(), key=lambda item: item[0], reverse=False)
+        sort_dict.append(('app_key', app_key))
+        sha = hashlib.md5()
+        raw_text = urlencode(sort_dict).encode()
+        sha.update(raw_text)
+        md5text = sha.hexdigest().upper()
+
+        req_dict['sign'] = md5text
+
+        return req_dict
+
+
+async def wordcom(request):
+    conf = request.app.config
+    data = request.json
+
+    result = {'errcode': 0, 'errmsg': 'ok'}
+
+    if 'text' in data:
+        async with aiohttp.ClientSession() as session:
+            async with session.post(conf.SVC_WORDCOM_URL, data=gen_tencent_ai_nlp_req_dict(data)) as resp:
+                resp_json = await resp.json()
+
+        result.update(resp_json.get('data', {}))
 
     else:
         result['errcode'] = 20001
