@@ -86,7 +86,7 @@ async def spam(request):
     if 'text' in data:
         async with aiohttp.ClientSession() as session:
             async with session.post(url, data={'content': data['text']}) as resp:
-                resp_json = await resp.json(encoding='gbk')
+                resp_json = await resp.json()
 
         result.update(resp_json.get('result', {'spam': 0}))
 
