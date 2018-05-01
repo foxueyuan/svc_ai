@@ -154,7 +154,7 @@ async def textchat(request):
         else:
             session = data['session']
 
-        req_data = await gen_tencent_ai_nlp_req_dict({'question': data['text'], 'session': data['session']})
+        req_data = await gen_tencent_ai_nlp_req_dict({'question': data['text'], 'session': session})
         async with aiohttp.ClientSession() as session:
             async with session.post(conf.SVC_TEXTCHAT_URL, data=req_data) as resp:
                 resp_json = await resp.json()
