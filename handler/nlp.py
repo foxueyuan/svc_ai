@@ -128,8 +128,9 @@ async def wordcom(request):
     result = {'errcode': 0, 'errmsg': 'ok'}
 
     if 'text' in data:
+        req_data = await gen_tencent_ai_nlp_req_dict(data)
         async with aiohttp.ClientSession() as session:
-            async with session.post(conf.SVC_WORDCOM_URL, data=gen_tencent_ai_nlp_req_dict(data)) as resp:
+            async with session.post(conf.SVC_WORDCOM_URL, data=req_data) as resp:
                 resp_json = await resp.json()
 
         result.update(resp_json.get('data', {}))
