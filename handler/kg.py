@@ -20,6 +20,6 @@ async def entity_annotation(request):
         result['entity_annotation'] = resp_json['entity_annotation']
     else:
         result['errcode'] = 20001
-        result['errmsg'] = '缺少text参数'
+        result['errmsg'] = '无效text参数'
 
     return response.json(result)

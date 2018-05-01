@@ -18,6 +18,7 @@ SVC_LEXER_CUSTOM_URL = 'https://aip.baidubce.com/rpc/2.0/nlp/v1/lexer_custom'
 SVC_DEPPARSER_URL = 'https://aip.baidubce.com/rpc/2.0/nlp/v1/depparser'
 SVC_KEYWORD_URL = 'https://aip.baidubce.com/rpc/2.0/nlp/v1/keyword'
 SVC_SIMNET_URL = 'https://aip.baidubce.com/rpc/2.0/nlp/v2/simnet'
+SVC_SPAM_URL = 'https://aip.baidubce.com/rest/2.0/antispam/v2/spam'
 
 SVC_UNIT_URL = 'https://aip.baidubce.com/rpc/2.0/solution/v1/unit_utterance'
 

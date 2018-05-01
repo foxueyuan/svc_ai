@@ -14,6 +14,7 @@ from handler.asr import asr
 from handler.unit import unit
 from handler.nlp import lexer
 from handler.nlp import simnet
+from handler.nlp import spam
 from handler.kg import entity_annotation
 
 app = Sanic(__name__)
@@ -23,6 +24,7 @@ app.config.from_object(config)
 app.add_route(asr, '/ai/speech/asr', methods=['POST'])
 app.add_route(lexer, '/ai/nlp/lexer', methods=['POST'])
 app.add_route(simnet, '/ai/nlp/simnet', methods=['POST'])
+app.add_route(spam, '/ai/nlp/spam', methods=['POST'])
 app.add_route(unit, '/ai/unit/unit', methods=['POST'])
 app.add_route(entity_annotation, '/ai/kg/entity_annotation', methods=['POST'])
 

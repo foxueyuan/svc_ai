@@ -73,3 +73,25 @@ async def simnet(request):
         result['errmsg'] = '缺少text参数'
 
     return response.json(result)
+
+
+async def spam(request):
+    conf = request.app.config
+    token = request.app.token
+    data = request.json
+
+    result = {'errcode': 0, 'errmsg': 'ok'}
+
+    url = '{}?access_token={}'.format(conf.SVC_SPAM_URL, token)
+    if 'text' in data:
+        async with aiohttp.ClientSession() as session:
+            async with session.post(url, data={'content': data['text']}) as resp:
+                resp_json = await resp.json(encoding='gbk')
+
+        result.update(resp_json.get('result', {'spam': 0}))
+
+    else:
+        result['errcode'] = 20001
+        result['errmsg'] = '缺少text参数'
+
+    return response.json(result)
