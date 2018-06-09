@@ -29,7 +29,7 @@ app.add_route(simnet, '/ai/nlp/simnet', methods=['POST'])
 app.add_route(spam, '/ai/nlp/spam', methods=['POST'])
 app.add_route(wordcom, '/ai/nlp/wordcom', methods=['POST'])
 app.add_route(textchat, '/ai/nlp/textchat', methods=['POST'])
-app.add_route(unit, '/ai/unit/unit', methods=['POST'])
+app.add_route(unit, '/ai/unit/bot/chat', methods=['POST'])
 app.add_route(entity_annotation, '/ai/kg/entity_annotation', methods=['POST'])
 
 
