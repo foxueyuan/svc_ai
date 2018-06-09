@@ -37,4 +37,4 @@ async def unit(request):
     if resp_json.get('err_no') == 0:
         return response.json({'errcode': 0, 'errmsg': 'ok', 'result': resp_json['result']})
     else:
-        return response.json({'errcode': resp_json['err_code'], 'errmsg': resp_json['err_msg']})
+        return response.json({'errcode': resp_json['error_code'], 'errmsg': resp_json['error_msg']})
