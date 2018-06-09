@@ -34,7 +34,7 @@ async def unit(request):
         async with session.post(url, json=payload) as resp:
             resp_json = await resp.json()
 
-    if resp_json.get('err_no') == 0:
+    if resp_json.get('error_code') == 0:
         return response.json({'errcode': 0, 'errmsg': 'ok', 'result': resp_json['result']})
     else:
         return response.json({'errcode': resp_json['error_code'], 'errmsg': resp_json['error_msg']})
