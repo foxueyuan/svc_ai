@@ -88,7 +88,7 @@ async def train(request):
                     "intentId": conf.UNIT_FAQ_INTENT_ID_MAP[doc['_type']],
                     "faqId": faq_id
                 }
-                es.update(index=doc['_index'], doc_type=doc['_type'], body=body, id=doc['_id'])
+                await es.update(index=doc['_index'], doc_type=doc['_type'], body=body, id=doc['_id'])
 
     result = await unit_model_train(request)
     return response.json(result)
@@ -100,8 +100,12 @@ async def faq_list(request, intent):
 
     page_no = int(args.get('pageNo', 1))
     page_size = int(args.get('pageSize', 50))
-    count = es.count(index='fo-index', doc_type=intent)['count']
     query_from = (page_no - 1) * page_size
+
+    count = await es.count(index='fo-index', doc_type=intent)['count']
+
+    if query_from >= count:
+        return response.json({'errcode': 0, 'errmsg': 'ok', 'result': {}})
 
     q = {
         "query": {
