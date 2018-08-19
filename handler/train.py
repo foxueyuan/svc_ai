@@ -214,6 +214,10 @@ async def faq_info(request, intent, doc_id):
     doc = await es.get(index='fo-index', doc_type=intent, id=doc_id, ignore=404)
 
     if doc['found']:
+        doc['_source'].pop("skillId")
+        doc['_source'].pop("intentId")
+        doc['_source'].pop("faqId")
+        doc['_source']['_id'] = doc['_id']
         return response.json({'errcode': 0, 'errmsg': 'ok', 'result': doc['_source']})
     else:
         return response.json({'errcode': 0, 'errmsg': 'ok', 'result': doc['_source']})
