@@ -46,33 +46,14 @@ async def train(request):
 
     doc_set = []
 
-    qa_docs = await es.search(
-        index='fo-index',
-        doc_type='qa',
-        body=q, filter_path=['hits.hits._source']
-    )
-    doc_set.append(qa_docs.get('hits', {}).get('hits', []))
+    qa_docs = await es.search(index='fo-index', doc_type='qa', body=q)
+    doc_set.extend(qa_docs.get('hits', {}).get('hits', []))
 
-    law_docs = await es.search(
-        index='fo-index',
-        doc_type='law',
-        body=q
-    )
-    doc_set.append(law_docs.get('hits', {}).get('hits', []))
+    kg_docs = await es.search(index='fo-index', doc_type='kg', body=q)
+    doc_set.extend(kg_docs.get('hits', {}).get('hits', []))
 
-    law_interpreation_docs = await es.search(
-        index='fo-index',
-        doc_type='law_interpreation',
-        body=q, filter_path=['hits.hits._source']
-    )
-    doc_set.append(law_interpreation_docs.get('hits', {}).get('hits', []))
-
-    instruction_docs = await es.search(
-        index='fo-index',
-        doc_type='instruction',
-        body=q, filter_path=['hits.hits._source']
-    )
-    doc_set.append(instruction_docs.get('hits', {}).get('hits', []))
+    instruction_docs = await es.search(index='fo-index', doc_type='instruction', body=q)
+    doc_set.extend(instruction_docs.get('hits', {}).get('hits', []))
 
     for doc in doc_set:
         faq = doc['_source']
