@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import time
 import aiohttp
 import uuid
 from sanic import response
@@ -42,9 +41,7 @@ async def unit_chat(request):
         return response.json({'errcode': resp_json['error_code'], 'errmsg': resp_json['error_msg']})
 
 
-async def unit_model_list(request):
-    conf = request.app.config
-    token = request.app.token
+async def unit_model_list(conf, token):
 
     url = '{}?access_token={}'.format(conf.SVC_UNIT_MODEL_LIST_URL, token)
 
@@ -57,20 +54,15 @@ async def unit_model_list(request):
             resp_json = await resp.json()
 
     if resp_json.get('error_code') == 0:
-        return response.json({'errcode': 0, 'errmsg': 'ok', 'result': resp_json['result']})
+        return resp_json['result']
     else:
-        return response.json({'errcode': resp_json['error_code'], 'errmsg': resp_json['error_msg']})
+        return None
 
 
 async def unit_model_train(request):
     conf = request.app.config
     token = request.app.token
 
-    now = time.time()
-    if now - request.app.last_train_timestamp < 1800:
-        return response.json({'errcode': 292012, 'errmsg': '上一个训练还未结束，请等待半个小时后再尝试'})
-
-    request.app.last_train_timestamp = now
     url = '{}?access_token={}'.format(conf.SVC_UNIT_MODEL_TRAIN_URL, token)
 
     payload = {
@@ -92,24 +84,19 @@ async def unit_model_train(request):
             resp_json = await resp.json()
 
     error_code = resp_json.get('error_code')
-    if error_code  == 0:
-        return response.json({'errcode': 0, 'errmsg': 'ok', 'result': resp_json['result']})
+    if error_code == 0:
+        return {'errcode': 0, 'errmsg': 'ok', 'result': resp_json['result']}
     elif error_code == 292012:
-        return response.json({'errcode': error_code, 'errmsg': '上一个训练还未结束，请等待半个小时后再尝试'})
+        return {'errcode': error_code, 'errmsg': '上一个训练还未结束，请等待半个小时后再尝试'}
     else:
-        return response.json({'errcode': error_code, 'errmsg': resp_json['error_msg']})
+        return {'errcode': error_code, 'errmsg': resp_json['error_msg']}
 
 
-async def unit_model_delete(request):
-    conf = request.app.config
-    token = request.app.token
-    data = request.json
-
+async def unit_model_delete(conf, token, model_id):
     url = '{}?access_token={}'.format(conf.SVC_UNIT_MODEL_DELETE_URL, token)
-
     payload = {
         "botId": conf.SVC_UNIT_BOT_ID,
-        "modelId": data['modelId']
+        "modelId": model_id
     }
 
     async with aiohttp.ClientSession() as session:
@@ -117,9 +104,9 @@ async def unit_model_delete(request):
             resp_json = await resp.json()
 
     if resp_json.get('error_code') == 0:
-        return response.json({'errcode': 0, 'errmsg': 'ok'})
+        print('delete model {} ok'.format(model_id))
     else:
-        return response.json({'errcode': resp_json['error_code'], 'errmsg': resp_json['error_msg']})
+        print('delete model {} failed: {}'.format(model_id, resp_json['error_msg']))
 
 
 async def unit_faq_list(request, intent):
@@ -170,19 +157,15 @@ async def unit_faq_info(request, intent, faq_id):
         return response.json({'errcode': resp_json['error_code'], 'errmsg': resp_json['error_msg']})
 
 
-async def unit_faq_add(request):
-    conf = request.app.config
-    token = request.app.token
-    data = request.json
-
+async def unit_faq_add(conf, token, intent,  question, answer):
     url = '{}?access_token={}'.format(conf.SVC_UNIT_FAQ_ADD_URL, token)
 
     payload = {
         "botId": conf.SVC_UNIT_BOT_ID,
         "skillId": conf.UNIT_SKILL_ID,
-        "intentId": conf.UNIT_FAQ_INTENT_ID_MAP.get(data['intent'], -1),
-        "faqQuestions": data["faqQuestions"],
-        "faqAnswers": data["faqAnswers"]
+        "intentId": conf.UNIT_FAQ_INTENT_ID_MAP.get(intent),
+        "faqQuestions": question,
+        "faqAnswers": answer
     }
 
     async with aiohttp.ClientSession() as session:
@@ -190,25 +173,23 @@ async def unit_faq_add(request):
             resp_json = await resp.json()
 
     if resp_json.get('error_code') == 0:
-        return response.json({'errcode': 0, 'errmsg': 'ok', 'result': resp_json['result']})
+        print('add faq {} ok'.format(resp_json['result']['faqId']))
+        return resp_json['result']['faqId']
     else:
-        return response.json({'errcode': resp_json['error_code'], 'errmsg': resp_json['error_msg']})
+        print('add faq failed: {}'.format(resp_json['error_msg']))
+        return None
 
 
-async def unit_faq_update(request):
-    conf = request.app.config
-    token = request.app.token
-    data = request.json
-
+async def unit_faq_update(conf, token, intent_id, faq_id, question, answer):
     url = '{}?access_token={}'.format(conf.SVC_UNIT_FAQ_UPDATE_URL, token)
 
     payload = {
         "botId": conf.SVC_UNIT_BOT_ID,
         "skillId": conf.UNIT_SKILL_ID,
-        "intentId": conf.UNIT_FAQ_INTENT_ID_MAP.get(data['intent'], -1),
-        "faqId": data["faqId"],
-        "faqQuestions": data["faqQuestions"],
-        "faqAnswers": data["faqAnswers"]
+        "intentId": intent_id,
+        "faqId": faq_id,
+        "faqQuestions": question,
+        "faqAnswers": answer
     }
 
     async with aiohttp.ClientSession() as session:
@@ -216,23 +197,18 @@ async def unit_faq_update(request):
             resp_json = await resp.json()
 
     if resp_json.get('error_code') == 0:
-        return response.json({'errcode': 0, 'errmsg': 'ok'})
+        print('update fap {} ok'.format(faq_id))
     else:
-        return response.json({'errcode': resp_json['error_code'], 'errmsg': resp_json['error_msg']})
+        print('update faq {} failed: {}'.format(faq_id, resp_json['error_msg']))
 
 
-async def unit_faq_delete(request):
-    conf = request.app.config
-    token = request.app.token
-    data = request.json
-
+async def unit_faq_delete(conf, token, intent_id, faq_id):
     url = '{}?access_token={}'.format(conf.SVC_UNIT_FAQ_DELETE_URL, token)
-
     payload = {
         "botId": conf.SVC_UNIT_BOT_ID,
         "skillId": conf.UNIT_SKILL_ID,
-        "intentId": conf.UNIT_FAQ_INTENT_ID_MAP.get(data['intent'], -1),
-        "faqId": data["faqId"]
+        "intentId": intent_id,
+        "faqId": faq_id
     }
 
     async with aiohttp.ClientSession() as session:
@@ -240,9 +216,9 @@ async def unit_faq_delete(request):
             resp_json = await resp.json()
 
     if resp_json.get('error_code') == 0:
-        return response.json({'errcode': 0, 'errmsg': 'ok'})
+        print('delete fap {} ok'.format(faq_id))
     else:
-        return response.json({'errcode': resp_json['error_code'], 'errmsg': resp_json['error_msg']})
+        print('delete faq {} failed: {}'.format(faq_id, resp_json['error_msg']))
 
 
 async def unit_faq_clear(request):

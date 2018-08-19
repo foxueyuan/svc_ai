@@ -7,20 +7,19 @@ import json
 import time
 import uvloop
 from sanic import Sanic
+from elasticsearch_async import AsyncElasticsearch
 
 import config
 
 from handler.asr import asr
-from handler.unit import (unit_chat, unit_faq_add, unit_faq_clear,
-                          unit_faq_delete, unit_faq_import, unit_faq_info,
-                          unit_faq_list, unit_faq_update, unit_file_upload,
-                          unit_model_delete, unit_model_list, unit_model_train)
+from handler.unit import unit_chat
 from handler.nlp import lexer
 from handler.nlp import simnet
 from handler.nlp import spam
 from handler.nlp import wordcom
 from handler.nlp import textchat
 from handler.kg import entity_annotation
+from handler.train import (train, faq_add, faq_delete, faq_info, faq_list, faq_update)
 
 app = Sanic(__name__)
 app.config.from_object(config)
@@ -32,17 +31,15 @@ app.add_route(spam, '/ai/nlp/spam', methods=['POST'])
 app.add_route(wordcom, '/ai/nlp/wordcom', methods=['POST'])
 app.add_route(textchat, '/ai/nlp/textchat', methods=['POST'])
 app.add_route(unit_chat, '/ai/unit/bot/chat', methods=['POST'])
-app.add_route(unit_faq_add, '/ai/unit/faq/add', methods=['POST'])
-app.add_route(unit_faq_clear, '/ai/unit/faq/clear', methods=['POST'])
-app.add_route(unit_faq_delete, '/ai/unit/faq/delete', methods=['POST'])
-app.add_route(unit_faq_import, '/ai/unit/faq/import', methods=['POST'])
-app.add_route(unit_faq_info, '/ai/unit/faq/intent/<intent>/faq/<faq_id:int>/info', methods=['GET'])
-app.add_route(unit_faq_list, '/ai/unit/faq/intent/<intent>/list', methods=['GET'])
-app.add_route(unit_faq_update, '/ai/unit/faq/update', methods=['POST'])
-app.add_route(unit_file_upload, '/ai/unit/file/upload', methods=['POST'])
-app.add_route(unit_model_delete, '/ai/unit/model/delete', methods=['POST'])
-app.add_route(unit_model_list, '/ai/unit/model/list', methods=['GET'])
-app.add_route(unit_model_train, '/ai/unit/model/train', methods=['GET'])
+
+app.add_route(faq_list, '/ai/faq/intent/<intent>', methods=['GET'])
+app.add_route(faq_add, '/ai/faq/intent/<intent>', methods=['PUT'])
+app.add_route(faq_delete, '/ai/faq/intent/<intent>/doc/<doc_id:int>', methods=['DELETE'])
+app.add_route(faq_update, '/ai/faq/intent/<intent>/doc/<doc_id:int>', methods=['POST'])
+app.add_route(faq_info, '/ai/faq/intent/<intent>/doc/<doc_id:int>', methods=['GET'])
+
+app.add_route(train, '/ai/train', methods=['GET'])
+
 
 app.add_route(entity_annotation, '/ai/kg/entity_annotation', methods=['POST'])
 
@@ -56,6 +53,8 @@ async def before_server_start(app, loop):
         encoding='utf8',
         loop=loop
     )
+
+    app.es = AsyncElasticsearch(hosts=['http://127.0.0.1:9200/'])
 
     token = json.loads(await app.rdb.get('token') or '{}')
     if not token or token['expiration'] < time.time() + 3600 * 24 * 7:
@@ -71,6 +70,8 @@ async def before_server_start(app, loop):
 async def after_server_stop(app, loop):
     app.rdb.close()
     await app.rdb.wait_closed()
+
+    await app.es.transport.close()
 
 
 async def fetch_aip_token(conf):

@@ -37,9 +37,8 @@ SVC_UNIT_FILE_UPLOAD_URL = 'https://aip.baidubce.com/file/2.0/unit/file/upload'
 
 UNIT_SKILL_ID = 0
 
-UNIT_FAQ_INTENT_ID_MAP = {'foai': 48233,
-                          'law': 51955,
-                          'law_interpreation': 52209,
+UNIT_FAQ_INTENT_ID_MAP = {'qa': 48233,
+                          'kg': 78733,
                           'instruction': 76972}
 
 SVC_KG_ENTITY_ANNOTATION_URL = 'https://aip.baidubce.com/rpc/2.0/kg/v1/cognitive/entity_annotation'
