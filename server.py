@@ -11,7 +11,10 @@ from sanic import Sanic
 import config
 
 from handler.asr import asr
-from handler.unit import unit
+from handler.unit import (unit_chat, unit_faq_add, unit_faq_clear,
+                          unit_faq_delete, unit_faq_import, unit_faq_info,
+                          unit_faq_list, unit_faq_update, unit_file_upload,
+                          unit_model_delete, unit_model_list, unit_model_train)
 from handler.nlp import lexer
 from handler.nlp import simnet
 from handler.nlp import spam
@@ -22,14 +25,25 @@ from handler.kg import entity_annotation
 app = Sanic(__name__)
 app.config.from_object(config)
 
-
 app.add_route(asr, '/ai/speech/asr', methods=['POST'])
 app.add_route(lexer, '/ai/nlp/lexer', methods=['POST'])
 app.add_route(simnet, '/ai/nlp/simnet', methods=['POST'])
 app.add_route(spam, '/ai/nlp/spam', methods=['POST'])
 app.add_route(wordcom, '/ai/nlp/wordcom', methods=['POST'])
 app.add_route(textchat, '/ai/nlp/textchat', methods=['POST'])
-app.add_route(unit, '/ai/unit/bot/chat', methods=['POST'])
+app.add_route(unit_chat, '/ai/unit/bot/chat', methods=['POST'])
+app.add_route(unit_faq_add, '/ai/unit/faq/add', methods=['POST'])
+app.add_route(unit_faq_clear, '/ai/unit/faq/clear', methods=['POST'])
+app.add_route(unit_faq_delete, '/ai/unit/faq/delete', methods=['POST'])
+app.add_route(unit_faq_import, '/ai/unit/faq/import', methods=['POST'])
+app.add_route(unit_faq_info, '/ai/unit/faq/info', methods=['POST'])
+app.add_route(unit_faq_list, '/ai/unit/faq/list', methods=['POST'])
+app.add_route(unit_faq_update, '/ai/unit/faq/update', methods=['POST'])
+app.add_route(unit_file_upload, '/ai/unit/file/upload', methods=['POST'])
+app.add_route(unit_model_delete, '/ai/unit/model/delete', methods=['POST'])
+app.add_route(unit_model_list, '/ai/unit/model/list', methods=['GET'])
+app.add_route(unit_model_train, '/ai/unit/model/train', methods=['GET'])
+
 app.add_route(entity_annotation, '/ai/kg/entity_annotation', methods=['POST'])
 
 

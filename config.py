@@ -20,7 +20,27 @@ SVC_KEYWORD_URL = 'https://aip.baidubce.com/rpc/2.0/nlp/v1/keyword'
 SVC_SIMNET_URL = 'https://aip.baidubce.com/rpc/2.0/nlp/v2/simnet'
 SVC_SPAM_URL = 'https://aip.baidubce.com/rest/2.0/antispam/v2/spam'
 
-SVC_UNIT_URL = 'https://aip.baidubce.com/rpc/2.0/unit/bot/chat'
+SVC_UNIT_BOT_ID = 1673
+SVC_UNIT_CHAT_URL = 'https://aip.baidubce.com/rpc/2.0/unit/bot/chat'
+SVC_UNIT_MODEL_LIST_URL = 'https://aip.baidubce.com/rpc/2.0/unit/bot/model/list'
+SVC_UNIT_MODEL_TRAIN_URL = 'https://aip.baidubce.com/rpc/2.0/unit/bot/model/train'
+SVC_UNIT_MODEL_DELETE_URL = 'https://aip.baidubce.com/rpc/2.0/unit/bot/model/delete'
+SVC_UNIT_FAQ_LIST_URL = 'https://aip.baidubce.com/rpc/2.0/unit/bot/faq/list'
+SVC_UNIT_FAQ_INFO_URL = 'https://aip.baidubce.com/rpc/2.0/unit/bot/faq/info'
+SVC_UNIT_FAQ_ADD_URL = 'https://aip.baidubce.com/rpc/2.0/unit/bot/faq/add'
+SVC_UNIT_FAQ_UPDATE_URL = 'https://aip.baidubce.com/rpc/2.0/unit/bot/faq/update'
+SVC_UNIT_FAQ_DELETE_URL = 'https://aip.baidubce.com/rpc/2.0/unit/bot/faq/delete'
+SVC_UNIT_FAQ_CLEAR_URL = 'https://aip.baidubce.com/rpc/2.0/unit/bot/faq/clear'
+SVC_UNIT_FAQ_IMPORT_URL = 'https://aip.baidubce.com/rpc/2.0/unit/bot/faq/import'
+SVC_UNIT_JOB_INFO_URL = 'https://aip.baidubce.com/rpc/2.0/unit/job/info'
+SVC_UNIT_FILE_UPLOAD_URL = 'https://aip.baidubce.com/file/2.0/unit/file/upload'
+
+UNIT_SKILL_ID = 0
+
+UNIT_FAQ_INTENT_ID_MAP = {'foai': 48233,
+                          'law': 51955,
+                          'law_interpreation': 52209,
+                          'instruction': 76972}
 
 SVC_KG_ENTITY_ANNOTATION_URL = 'https://aip.baidubce.com/rpc/2.0/kg/v1/cognitive/entity_annotation'
 
