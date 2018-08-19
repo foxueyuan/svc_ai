@@ -36,8 +36,8 @@ app.add_route(unit_faq_add, '/ai/unit/faq/add', methods=['POST'])
 app.add_route(unit_faq_clear, '/ai/unit/faq/clear', methods=['POST'])
 app.add_route(unit_faq_delete, '/ai/unit/faq/delete', methods=['POST'])
 app.add_route(unit_faq_import, '/ai/unit/faq/import', methods=['POST'])
-app.add_route(unit_faq_info, '/ai/unit/faq/info', methods=['POST'])
-app.add_route(unit_faq_list, '/ai/unit/faq/list', methods=['POST'])
+app.add_route(unit_faq_info, '/ai/unit/faq/intent/<intent>/faq/<faq_id:int>/info', methods=['GET'])
+app.add_route(unit_faq_list, '/ai/unit/faq/intent/<intent>/list', methods=['GET'])
 app.add_route(unit_faq_update, '/ai/unit/faq/update', methods=['POST'])
 app.add_route(unit_file_upload, '/ai/unit/file/upload', methods=['POST'])
 app.add_route(unit_model_delete, '/ai/unit/model/delete', methods=['POST'])
@@ -63,6 +63,8 @@ async def before_server_start(app, loop):
         await app.rdb.set('token', json.dumps(token))
 
     app.token = token['access_token']
+
+    app.last_train_timestamp = 0
 
 
 @app.listener('after_server_stop')

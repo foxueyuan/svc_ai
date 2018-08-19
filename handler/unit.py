@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import time
 import aiohttp
 import uuid
 from sanic import response
@@ -65,6 +66,11 @@ async def unit_model_train(request):
     conf = request.app.config
     token = request.app.token
 
+    now = time.time()
+    if now - request.app.last_train_timestamp < 1800:
+        return response.json({'errcode': 292012, 'errmsg': '上一个训练还未结束，请等待半个小时后再尝试'})
+
+    request.app.last_train_timestamp = now
     url = '{}?access_token={}'.format(conf.SVC_UNIT_MODEL_TRAIN_URL, token)
 
     payload = {
@@ -72,11 +78,11 @@ async def unit_model_train(request):
         "trainOption": {
             "configure": {
                 "smartqu": "true",
-                "mlqu": "true"
+                "mlqu": "false"
             },
             "data": {
-                "querySetIds": [1, 2],
-                "patternSetIds": [100]
+                "querySetIds": [],
+                "patternSetIds": [2066]
             }
         }
     }
@@ -85,10 +91,13 @@ async def unit_model_train(request):
         async with session.post(url, json=payload) as resp:
             resp_json = await resp.json()
 
-    if resp_json.get('error_code') == 0:
+    error_code = resp_json.get('error_code')
+    if error_code  == 0:
         return response.json({'errcode': 0, 'errmsg': 'ok', 'result': resp_json['result']})
+    elif error_code == 292012:
+        return response.json({'errcode': error_code, 'errmsg': '上一个训练还未结束，请等待半个小时后再尝试'})
     else:
-        return response.json({'errcode': resp_json['error_code'], 'errmsg': resp_json['error_msg']})
+        return response.json({'errcode': error_code, 'errmsg': resp_json['error_msg']})
 
 
 async def unit_model_delete(request):
@@ -113,19 +122,19 @@ async def unit_model_delete(request):
         return response.json({'errcode': resp_json['error_code'], 'errmsg': resp_json['error_msg']})
 
 
-async def unit_faq_list(request):
+async def unit_faq_list(request, intent):
     conf = request.app.config
     token = request.app.token
-    data = request.json
+    data = request.raw_args
 
     url = '{}?access_token={}'.format(conf.SVC_UNIT_FAQ_LIST_URL, token)
 
     payload = {
         "botId": conf.SVC_UNIT_BOT_ID,
-        "skillId": conf.UNIT_FAQ_INTENT_ID_MAP[data["skillId"]],
-        "intentId": conf.UNIT_SKILL_ID,
-        "pageNo": data.get('pageNo', 1),
-        "pageSize": 50
+        "skillId": conf.UNIT_SKILL_ID,
+        "intentId": conf.UNIT_FAQ_INTENT_ID_MAP.get(intent, -1),
+        "pageNo": int(data.get('pageNo', 1)),
+        "pageSize": 100
     }
 
     async with aiohttp.ClientSession() as session:
@@ -138,18 +147,17 @@ async def unit_faq_list(request):
         return response.json({'errcode': resp_json['error_code'], 'errmsg': resp_json['error_msg']})
 
 
-async def unit_faq_info(request):
+async def unit_faq_info(request, intent, faq_id):
     conf = request.app.config
-    token = request.app.token
-    data = request.json
+    token = request.app.tokens
 
     url = '{}?access_token={}'.format(conf.SVC_UNIT_FAQ_INFO_URL, token)
 
     payload = {
         "botId": conf.SVC_UNIT_BOT_ID,
-        "skillId": conf.UNIT_FAQ_INTENT_ID_MAP[data["skillId"]],
-        "intentId": conf.UNIT_SKILL_ID,
-        "faqId": data["faqId"]
+        "skillId": conf.UNIT_SKILL_ID,
+        "intentId": conf.UNIT_FAQ_INTENT_ID_MAP.get(intent, -1),
+        "faqId":  faq_id
     }
 
     async with aiohttp.ClientSession() as session:
@@ -171,8 +179,8 @@ async def unit_faq_add(request):
 
     payload = {
         "botId": conf.SVC_UNIT_BOT_ID,
-        "skillId": conf.UNIT_FAQ_INTENT_ID_MAP[data["skillId"]],
-        "intentId": conf.UNIT_SKILL_ID,
+        "skillId": conf.UNIT_SKILL_ID,
+        "intentId": conf.UNIT_FAQ_INTENT_ID_MAP.get(data['intent'], -1),
         "faqQuestions": data["faqQuestions"],
         "faqAnswers": data["faqAnswers"]
     }
@@ -196,8 +204,8 @@ async def unit_faq_update(request):
 
     payload = {
         "botId": conf.SVC_UNIT_BOT_ID,
-        "skillId": conf.UNIT_FAQ_INTENT_ID_MAP[data["skillId"]],
-        "intentId": conf.UNIT_SKILL_ID,
+        "skillId": conf.UNIT_SKILL_ID,
+        "intentId": conf.UNIT_FAQ_INTENT_ID_MAP.get(data['intent'], -1),
         "faqId": data["faqId"],
         "faqQuestions": data["faqQuestions"],
         "faqAnswers": data["faqAnswers"]
@@ -222,8 +230,8 @@ async def unit_faq_delete(request):
 
     payload = {
         "botId": conf.SVC_UNIT_BOT_ID,
-        "skillId": conf.UNIT_FAQ_INTENT_ID_MAP[data["skillId"]],
-        "intentId": conf.UNIT_SKILL_ID,
+        "skillId": conf.UNIT_SKILL_ID,
+        "intentId": conf.UNIT_FAQ_INTENT_ID_MAP.get(data['intent'], -1),
         "faqId": data["faqId"]
     }
 
@@ -246,7 +254,7 @@ async def unit_faq_clear(request):
 
     payload = {
         "botId": conf.SVC_UNIT_BOT_ID,
-        "skillId": conf.UNIT_FAQ_INTENT_ID_MAP[data["skillId"]],
+        "skillId": conf.UNIT_FAQ_INTENT_ID_MAP[data["skill"]],
         "intentId": conf.UNIT_SKILL_ID
     }
 

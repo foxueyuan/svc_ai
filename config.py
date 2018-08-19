@@ -7,8 +7,8 @@ REDIS_HOST = '127.0.0.1'
 REDIS_PORT = 16379
 REDIS_DB = 0
 
-AIP_AK = 'DxIZQ7wjnukFg8FuT0ZLDi9L'
-AIP_SK = 'ZY2h6hLfqUxmE2XkAIZ8B359odyGKD97'
+AIP_AK = 'ATc8HsEb7Mh9FiDFrnqjoWBE'
+AIP_SK = 'zKWpPOx96xnoj7yC5svaGSLXO8LnPwn4'
 
 SVC_TOKEN_URL = 'https://openapi.baidu.com/oauth/2.0/token'
 SVC_ASR_URL = 'https://vop.baidu.com/server_api'
@@ -22,16 +22,16 @@ SVC_SPAM_URL = 'https://aip.baidubce.com/rest/2.0/antispam/v2/spam'
 
 SVC_UNIT_BOT_ID = 1673
 SVC_UNIT_CHAT_URL = 'https://aip.baidubce.com/rpc/2.0/unit/bot/chat'
-SVC_UNIT_MODEL_LIST_URL = 'https://aip.baidubce.com/rpc/2.0/unit/bot/model/list'
-SVC_UNIT_MODEL_TRAIN_URL = 'https://aip.baidubce.com/rpc/2.0/unit/bot/model/train'
-SVC_UNIT_MODEL_DELETE_URL = 'https://aip.baidubce.com/rpc/2.0/unit/bot/model/delete'
-SVC_UNIT_FAQ_LIST_URL = 'https://aip.baidubce.com/rpc/2.0/unit/bot/faq/list'
-SVC_UNIT_FAQ_INFO_URL = 'https://aip.baidubce.com/rpc/2.0/unit/bot/faq/info'
-SVC_UNIT_FAQ_ADD_URL = 'https://aip.baidubce.com/rpc/2.0/unit/bot/faq/add'
-SVC_UNIT_FAQ_UPDATE_URL = 'https://aip.baidubce.com/rpc/2.0/unit/bot/faq/update'
-SVC_UNIT_FAQ_DELETE_URL = 'https://aip.baidubce.com/rpc/2.0/unit/bot/faq/delete'
-SVC_UNIT_FAQ_CLEAR_URL = 'https://aip.baidubce.com/rpc/2.0/unit/bot/faq/clear'
-SVC_UNIT_FAQ_IMPORT_URL = 'https://aip.baidubce.com/rpc/2.0/unit/bot/faq/import'
+SVC_UNIT_MODEL_LIST_URL = 'https://aip.baidubce.com/rpc/2.0/unit/model/list'
+SVC_UNIT_MODEL_TRAIN_URL = 'https://aip.baidubce.com/rpc/2.0/unit/model/train'
+SVC_UNIT_MODEL_DELETE_URL = 'https://aip.baidubce.com/rpc/2.0/unit/model/delete'
+SVC_UNIT_FAQ_LIST_URL = 'https://aip.baidubce.com/rpc/2.0/unit/faq/list'
+SVC_UNIT_FAQ_INFO_URL = 'https://aip.baidubce.com/rpc/2.0/unit/faq/info'
+SVC_UNIT_FAQ_ADD_URL = 'https://aip.baidubce.com/rpc/2.0/unit/faq/add'
+SVC_UNIT_FAQ_UPDATE_URL = 'https://aip.baidubce.com/rpc/2.0/unit/faq/update'
+SVC_UNIT_FAQ_DELETE_URL = 'https://aip.baidubce.com/rpc/2.0/unit/faq/delete'
+SVC_UNIT_FAQ_CLEAR_URL = 'https://aip.baidubce.com/rpc/2.0/unit/faq/clear'
+SVC_UNIT_FAQ_IMPORT_URL = 'https://aip.baidubce.com/rpc/2.0/unit/faq/import'
 SVC_UNIT_JOB_INFO_URL = 'https://aip.baidubce.com/rpc/2.0/unit/job/info'
 SVC_UNIT_FILE_UPLOAD_URL = 'https://aip.baidubce.com/file/2.0/unit/file/upload'
 
