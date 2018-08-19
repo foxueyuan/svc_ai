@@ -37,7 +37,7 @@ async def train(request):
         "query": {
             "bool": {
                 "filter": {
-                    "range": {"updateAt": {"gt": last_success_train_timestamp}}
+                    "range": {"updatedAt": {"gt": last_success_train_timestamp}}
                 }
             }
         },
@@ -65,13 +65,29 @@ async def train(request):
             faq_id = await unit_faq_add(conf, token, doc['_type'], question, answer)
             if faq_id:
                 body = {
-                    "skillId": conf.UNIT_SKILL_ID,
-                    "intentId": conf.UNIT_FAQ_INTENT_ID_MAP[doc['_type']],
-                    "faqId": faq_id
+                    "doc": {
+                        "skillId": conf.UNIT_SKILL_ID,
+                        "intentId": conf.UNIT_FAQ_INTENT_ID_MAP[doc['_type']],
+                        "faqId": faq_id
+                    }
                 }
                 await es.update(index=doc['_index'], doc_type=doc['_type'], body=body, id=doc['_id'])
 
     result = await unit_model_train(request)
+
+    if result['errcode'] == 0:
+        await es.index(
+            index='train-index',
+            doc_type='train',
+            body={
+                'qa': [doc['_id'] for doc in qa_docs.get('hits', {}).get('hits', [])],
+                'kg': [doc['_id'] for doc in kg_docs.get('hits', {}).get('hits', [])],
+                'instruction': [doc['_id'] for doc in instruction_docs.get('hits', {}).get('hits', [])],
+                'createdAt': int(time.time())
+            }
+        )
+
+
     return response.json(result)
 
 
@@ -147,6 +163,7 @@ async def faq_add(request, intent):
 
     body['question'] = data['question']
     body['answer'] = data['answer']
+    body['updatedAt'] = int(time.time())
 
     await es.index(index='fo-index', doc_type=intent, body=body)
 
@@ -183,6 +200,7 @@ async def faq_update(request, intent, doc_id):
 
     body['question'] = data['question']
     body['answer'] = data['answer']
+    body['updatedAt'] = int(time.time())
 
     await es.index(index='fo-index', doc_type=intent, body=body, id=doc_id)
 

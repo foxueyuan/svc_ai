@@ -89,4 +89,4 @@ async def fetch_aip_token(conf):
 
 if __name__ == "__main__":
     asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
-    app.run(host=app.config.HOST, port=app.config.PORT)
+    app.run(host=app.config.HOST, port=app.config.PORT, debug=True)
