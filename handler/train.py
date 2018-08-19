@@ -96,7 +96,7 @@ async def train(request):
 
 async def faq_list(request, intent):
     es = request.app.es
-    args = request.app.raw_args
+    args = request.raw_args
 
     page_no = int(args.get('pageNo', 1))
     page_size = int(args.get('pageSize', 50))
