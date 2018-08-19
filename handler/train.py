@@ -102,7 +102,9 @@ async def faq_list(request, intent):
     page_size = int(args.get('pageSize', 50))
     query_from = (page_no - 1) * page_size
 
-    count = await es.count(index='fo-index', doc_type=intent)['count']
+    res = await es.count(index='fo-index', doc_type=intent)
+
+    count = res['count']
 
     if query_from >= count:
         return response.json({'errcode': 0, 'errmsg': 'ok', 'result': {}})
@@ -115,9 +117,25 @@ async def faq_list(request, intent):
         "size": page_size
     }
 
-    docs = es.search(index='fo-index', doc_type=intent, body=q, filter_path=['hits.hits._source'])
+    docs = await es.search(
+        index='fo-index',
+        doc_type=intent,
+        body=q,
+        filter_path=[
+            'hits.hits._id',
+            'hits.hits._source.title',
+            'hits.hits._source.topic',
+            'hits.hits._source.question',
+            'hits.hits._source.answer',
+            'hits.hits._source.updatedAt'
+        ])
 
     if docs:
+        rst_docs = []
+        for doc in docs['hits']['hits']:
+            rst_doc = doc['_source']
+            rst_doc['_id'] = doc['_id']
+            rst_docs.append(rst_doc)
         return response.json(
             {
                 'errcode': 0,
@@ -125,7 +143,7 @@ async def faq_list(request, intent):
                 'result':
                     {
                         "total": count,
-                        "docs": [doc['_source'] for doc in docs['hits']['hits']]
+                        "docs": rst_docs
                     }
             }
         )

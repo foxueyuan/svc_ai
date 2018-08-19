@@ -34,9 +34,9 @@ app.add_route(unit_chat, '/ai/unit/bot/chat', methods=['POST'])
 
 app.add_route(faq_list, '/ai/faq/intent/<intent>', methods=['GET'])
 app.add_route(faq_add, '/ai/faq/intent/<intent>', methods=['PUT'])
-app.add_route(faq_delete, '/ai/faq/intent/<intent>/doc/<doc_id:int>', methods=['DELETE'])
-app.add_route(faq_update, '/ai/faq/intent/<intent>/doc/<doc_id:int>', methods=['POST'])
-app.add_route(faq_info, '/ai/faq/intent/<intent>/doc/<doc_id:int>', methods=['GET'])
+app.add_route(faq_delete, '/ai/faq/intent/<intent>/doc/<doc_id>', methods=['DELETE'])
+app.add_route(faq_update, '/ai/faq/intent/<intent>/doc/<doc_id>', methods=['POST'])
+app.add_route(faq_info, '/ai/faq/intent/<intent>/doc/<doc_id>', methods=['GET'])
 
 app.add_route(train, '/ai/train', methods=['GET'])
 
