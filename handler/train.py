@@ -94,6 +94,31 @@ async def faq_list(request, intent):
     es = request.app.es
     args = request.raw_args
 
+    if 'title' in args:
+        q = {
+            "query": {
+                "bool": {
+                    "filter": {
+                        "match_phrase": {
+                            "title": args['title']
+                        }
+                    }
+                }
+            },
+            "size": 1
+        }
+
+        res = await es.search(index='fo-index', doc_type=intent, body=q)
+        if res['hits']['hits']:
+            doc = res['hits']['hits'][0]
+            doc['_source'].pop("skillId", None)
+            doc['_source'].pop("intentId", None)
+            doc['_source'].pop("faqId", None)
+            doc['_source']['_id'] = doc['_id']
+            return response.json({'errcode': 0, 'errmsg': 'ok', 'result': doc['_source']})
+        else:
+            return response.json({'errcode': 0, 'errmsg': 'ok', 'result': {}})
+
     page_no = int(args.get('pageNo', 1))
     page_size = int(args.get('pageSize', 50))
     query_from = (page_no - 1) * page_size
@@ -205,10 +230,17 @@ async def faq_delete(request, intent, doc_id):
     return response.json({'errcode': 0, 'errmsg': 'ok'})
 
 
-async def faq_delete_by_title(request, intent, title):
+async def faq_delete_by_title(request, intent):
     conf = request.app.config
     token = request.app.token
     es = request.app.es
+
+    args = request.raw_args
+
+    title = args.get('title')
+
+    if not title:
+        return response.json({'errcode': -1, 'errmsg': '缺少参数'})
 
     q = {
         "query": {
@@ -264,9 +296,15 @@ async def faq_update(request, intent, doc_id):
     return response.json({'errcode': 0, 'errmsg': 'ok'})
 
 
-async def faq_update_by_title(request, intent, title):
+async def faq_update_by_title(request, intent):
     es = request.app.es
+    args = request.raw_args
     data = request.json
+
+    title = args.get('title')
+
+    if not title:
+        return response.json({'errcode': -1, 'errmsg': '缺少参数'})
 
     body = {'doc': {}}
     if "title" in data:
@@ -316,34 +354,6 @@ async def faq_info(request, intent, doc_id):
     doc = await es.get(index='fo-index', doc_type=intent, id=doc_id, ignore=404)
 
     if doc['found']:
-        doc['_source'].pop("skillId", None)
-        doc['_source'].pop("intentId", None)
-        doc['_source'].pop("faqId", None)
-        doc['_source']['_id'] = doc['_id']
-        return response.json({'errcode': 0, 'errmsg': 'ok', 'result': doc['_source']})
-    else:
-        return response.json({'errcode': 0, 'errmsg': 'ok', 'result': {}})
-
-
-async def faq_info_by_title(request, intent, title):
-    es = request.app.es
-
-    q = {
-        "query": {
-            "bool": {
-                "filter": {
-                    "match_phrase": {
-                        "title": title
-                    }
-                }
-            }
-        },
-        "size": 1
-    }
-
-    res = await es.search(index='fo-index', doc_type=intent, body=q)
-    if res['hits']['hits']:
-        doc = res['hits']['hits'][0]
         doc['_source'].pop("skillId", None)
         doc['_source'].pop("intentId", None)
         doc['_source'].pop("faqId", None)

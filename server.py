@@ -38,9 +38,8 @@ app.add_route(faq_add, '/ai/faq/intent/<intent>', methods=['PUT'])
 app.add_route(faq_delete, '/ai/faq/intent/<intent>/doc/<doc_id>', methods=['DELETE'])
 app.add_route(faq_update, '/ai/faq/intent/<intent>/doc/<doc_id>', methods=['POST'])
 app.add_route(faq_info, '/ai/faq/intent/<intent>/doc/<doc_id>', methods=['GET'])
-app.add_route(faq_delete_by_title, '/ai/faq/intent/<intent>/title/<title>', methods=['DELETE'])
-app.add_route(faq_update_by_title, '/ai/faq/intent/<intent>/title/<title>', methods=['POST'])
-app.add_route(faq_info_by_title, '/ai/faq/intent/<intent>/title/<title>', methods=['GET'])
+app.add_route(faq_delete_by_title, '/ai/faq/intent/<intent>', methods=['DELETE'])
+app.add_route(faq_update_by_title, '/ai/faq/intent/<intent>', methods=['POST'])
 
 app.add_route(train, '/ai/train', methods=['GET'])
 
