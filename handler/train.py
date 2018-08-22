@@ -275,8 +275,6 @@ async def faq_update(request, intent, doc_id):
     body = {'doc': {}}
     if "title" in data:
         body['doc']['title'] = data['title']
-    else:
-        body['doc']['title'] = data['question'][0]
 
     if "topic" in data:
         body['doc']['topic'] = data['topic']
@@ -309,8 +307,6 @@ async def faq_update_by_title(request, intent):
     body = {'doc': {}}
     if "title" in data:
         body['doc']['title'] = data['title']
-    else:
-        body['doc']['title'] = data['question'][0]
 
     if "topic" in data:
         body['doc']['topic'] = data['topic']
