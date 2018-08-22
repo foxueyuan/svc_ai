@@ -87,7 +87,6 @@ async def train(request):
             }
         )
 
-
     return response.json(result)
 
 
@@ -152,20 +151,39 @@ async def faq_add(request, intent):
     es = request.app.es
     data = request.json
 
-    body = {}
-    if "title" in data:
-        body['title'] = data['title']
-    else:
-        body['title'] = data['question'][0]
+    if isinstance(data, dict):
+        body = {}
+        if "title" in data:
+            body['title'] = data['title']
+        else:
+            body['title'] = data['question'][0]
 
-    if "topic" in data:
-        body['topic'] = data['topic']
+        if "topic" in data:
+            body['topic'] = data['topic']
 
-    body['question'] = data['question']
-    body['answer'] = data['answer']
-    body['updatedAt'] = int(time.time())
+        body['question'] = data['question']
+        body['answer'] = data['answer']
+        body['updatedAt'] = int(time.time())
 
-    await es.index(index='fo-index', doc_type=intent, body=body)
+        await es.index(index='fo-index', doc_type=intent, body=body)
+    elif isinstance(data, list):
+        if len(data) > 1000:
+            return response.json({'errcode': 413, 'errmsg': '批量插入条目不能超过1000'})
+        for item in data:
+            body = {}
+            if "title" in item:
+                body['title'] = item['title']
+            else:
+                body['title'] = item['question'][0]
+
+            if "topic" in data:
+                body['topic'] = item['topic']
+
+            body['question'] = item['question']
+            body['answer'] = item['answer']
+            body['updatedAt'] = int(time.time())
+
+            await es.index(index='fo-index', doc_type=intent, body=item)
 
     return response.json({'errcode': 0, 'errmsg': 'ok'})
 
@@ -187,11 +205,42 @@ async def faq_delete(request, intent, doc_id):
     return response.json({'errcode': 0, 'errmsg': 'ok'})
 
 
+async def faq_delete_by_title(request, intent, title):
+    conf = request.app.config
+    token = request.app.token
+    es = request.app.es
+
+    q = {
+        "query": {
+            "bool": {
+                "filter": {
+                    "match_phrase": {
+                        "title": title
+                    }
+                }
+            }
+        },
+        "size": 1
+    }
+
+    res = await es.search(index='fo-index', doc_type=intent, body=q)
+
+    if res['hits']['hits']:
+        doc = res['hits']['hits'][0]
+        if 'faqId' in doc['_source']:
+            intent_id = doc['_source']['intentId']
+            faq_id = doc['_source']['faqId']
+            await unit_faq_delete(conf, token, intent_id, faq_id)
+        await es.delete(index='fo-index', doc_type=intent, id=doc['_id'])
+
+    return response.json({'errcode': 0, 'errmsg': 'ok'})
+
+
 async def faq_update(request, intent, doc_id):
     es = request.app.es
     data = request.json
 
-    body = {'doc':{}}
+    body = {'doc': {}}
     if "title" in data:
         body['doc']['title'] = data['title']
     else:
@@ -215,12 +264,86 @@ async def faq_update(request, intent, doc_id):
     return response.json({'errcode': 0, 'errmsg': 'ok'})
 
 
+async def faq_update_by_title(request, intent, title):
+    es = request.app.es
+    data = request.json
+
+    body = {'doc': {}}
+    if "title" in data:
+        body['doc']['title'] = data['title']
+    else:
+        body['doc']['title'] = data['question'][0]
+
+    if "topic" in data:
+        body['doc']['topic'] = data['topic']
+
+    if "question" in data:
+        body['doc']['question'] = data['question']
+
+    if "answer" in data:
+        body['doc']['answer'] = data['answer']
+
+    if not body:
+        return response.json({'errcode': 0, 'errmsg': 'ok'})
+
+    body['doc']['updatedAt'] = int(time.time())
+
+    q = {
+        "query": {
+            "bool": {
+                "filter": {
+                    "match_phrase": {
+                        "title": title
+                    }
+                }
+            }
+        },
+        "size": 1
+    }
+
+    res = await es.search(index='fo-index', doc_type=intent, body=q)
+
+    if res['hits']['hits']:
+        doc = res['hits']['hits'][0]
+        await es.update(index='fo-index', doc_type=intent, body=body, id=doc['_id'])
+
+    return response.json({'errcode': 0, 'errmsg': 'ok'})
+
+
 async def faq_info(request, intent, doc_id):
     es = request.app.es
 
     doc = await es.get(index='fo-index', doc_type=intent, id=doc_id, ignore=404)
 
     if doc['found']:
+        doc['_source'].pop("skillId", None)
+        doc['_source'].pop("intentId", None)
+        doc['_source'].pop("faqId", None)
+        doc['_source']['_id'] = doc['_id']
+        return response.json({'errcode': 0, 'errmsg': 'ok', 'result': doc['_source']})
+    else:
+        return response.json({'errcode': 0, 'errmsg': 'ok', 'result': {}})
+
+
+async def faq_info_by_title(request, intent, title):
+    es = request.app.es
+
+    q = {
+        "query": {
+            "bool": {
+                "filter": {
+                    "match_phrase": {
+                        "title": title
+                    }
+                }
+            }
+        },
+        "size": 1
+    }
+
+    res = await es.search(index='fo-index', doc_type=intent, body=q)
+    if res['hits']['hits']:
+        doc = res['hits']['hits'][0]
         doc['_source'].pop("skillId", None)
         doc['_source'].pop("intentId", None)
         doc['_source'].pop("faqId", None)

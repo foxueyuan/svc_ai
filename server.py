@@ -19,7 +19,8 @@ from handler.nlp import spam
 from handler.nlp import wordcom
 from handler.nlp import textchat
 from handler.kg import entity_annotation
-from handler.train import (train, faq_add, faq_delete, faq_info, faq_list, faq_update)
+from handler.train import (train, faq_add, faq_delete, faq_info, faq_list, faq_update,
+                           faq_delete_by_title, faq_update_by_title, faq_info_by_title)
 
 app = Sanic(__name__)
 app.config.from_object(config)
@@ -37,6 +38,9 @@ app.add_route(faq_add, '/ai/faq/intent/<intent>', methods=['PUT'])
 app.add_route(faq_delete, '/ai/faq/intent/<intent>/doc/<doc_id>', methods=['DELETE'])
 app.add_route(faq_update, '/ai/faq/intent/<intent>/doc/<doc_id>', methods=['POST'])
 app.add_route(faq_info, '/ai/faq/intent/<intent>/doc/<doc_id>', methods=['GET'])
+app.add_route(faq_delete_by_title, '/ai/faq/intent/<intent>/title/<title>', methods=['DELETE'])
+app.add_route(faq_update_by_title, '/ai/faq/intent/<intent>/title/<title>', methods=['POST'])
+app.add_route(faq_info_by_title, '/ai/faq/intent/<intent>/title/<title>', methods=['GET'])
 
 app.add_route(train, '/ai/train', methods=['GET'])
 
