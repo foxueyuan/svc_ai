@@ -20,7 +20,7 @@ from handler.nlp import wordcom
 from handler.nlp import textchat
 from handler.kg import entity_annotation
 from handler.train import (train, faq_add, faq_delete, faq_info, faq_list, faq_update,
-                           faq_delete_by_title, faq_update_by_title, faq_info_by_title)
+                           faq_delete_by_title, faq_update_by_title)
 
 app = Sanic(__name__)
 app.config.from_object(config)
