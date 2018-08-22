@@ -178,9 +178,10 @@ async def faq_delete(request, intent, doc_id):
     doc = await es.get(index='fo-index', doc_type=intent, id=doc_id, ignore=404)
 
     if doc['found']:
-        intent_id = doc['_source']['intent_id']
-        faq_id = doc['_source']['faqId']
-        await unit_faq_delete(conf, token, intent_id, faq_id)
+        if 'faqId' in doc['_source']:
+            intent_id = doc['_source']['intentId']
+            faq_id = doc['_source']['faqId']
+            await unit_faq_delete(conf, token, intent_id, faq_id)
         await es.delete(index='fo-index', doc_type=intent, id=doc_id)
 
     return response.json({'errcode': 0, 'errmsg': 'ok'})
