@@ -181,6 +181,7 @@ async def faq_delete(request, intent, doc_id):
         intent_id = doc['_source']['intent_id']
         faq_id = doc['_source']['faqId']
         await unit_faq_delete(conf, token, intent_id, faq_id)
+        await es.delete(index='fo-index', doc_type=intent, id=doc_id)
 
     return response.json({'errcode': 0, 'errmsg': 'ok'})
 
@@ -198,10 +199,16 @@ async def faq_update(request, intent, doc_id):
     if "topic" in data:
         body['topic'] = data['topic']
 
-    body['question'] = data['question']
-    body['answer'] = data['answer']
-    body['updatedAt'] = int(time.time())
+    if "question" in data:
+        body['question'] = data['question']
 
+    if "answer" in data:
+        body['answer'] = data['answer']
+
+    if not body:
+        return response.json({'errcode': 0, 'errmsg': 'ok'})
+
+    body['updatedAt'] = int(time.time())
     await es.index(index='fo-index', doc_type=intent, body=body, id=doc_id)
 
     return response.json({'errcode': 0, 'errmsg': 'ok'})
@@ -219,4 +226,4 @@ async def faq_info(request, intent, doc_id):
         doc['_source']['_id'] = doc['_id']
         return response.json({'errcode': 0, 'errmsg': 'ok', 'result': doc['_source']})
     else:
-        return response.json({'errcode': 0, 'errmsg': 'ok', 'result': doc['_source']})
+        return response.json({'errcode': 0, 'errmsg': 'ok', 'result': {}})
