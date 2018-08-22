@@ -191,26 +191,26 @@ async def faq_update(request, intent, doc_id):
     es = request.app.es
     data = request.json
 
-    body = {}
+    body = {'doc':{}}
     if "title" in data:
-        body['title'] = data['title']
+        body['doc']['title'] = data['title']
     else:
-        body['title'] = data['question'][0]
+        body['doc']['title'] = data['question'][0]
 
     if "topic" in data:
-        body['topic'] = data['topic']
+        body['doc']['topic'] = data['topic']
 
     if "question" in data:
-        body['question'] = data['question']
+        body['doc']['question'] = data['question']
 
     if "answer" in data:
-        body['answer'] = data['answer']
+        body['doc']['answer'] = data['answer']
 
     if not body:
         return response.json({'errcode': 0, 'errmsg': 'ok'})
 
-    body['updatedAt'] = int(time.time())
-    await es.index(index='fo-index', doc_type=intent, body=body, id=doc_id)
+    body['doc']['updatedAt'] = int(time.time())
+    await es.update(index='fo-index', doc_type=intent, body=body, id=doc_id)
 
     return response.json({'errcode': 0, 'errmsg': 'ok'})
 
