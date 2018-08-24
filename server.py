@@ -12,7 +12,7 @@ from elasticsearch_async import AsyncElasticsearch
 import config
 
 from handler.asr import asr
-from handler.unit import unit_chat
+from handler.unit import (unit_chat, unit_faq_list)
 from handler.nlp import lexer
 from handler.nlp import simnet
 from handler.nlp import spam
@@ -20,7 +20,7 @@ from handler.nlp import wordcom
 from handler.nlp import textchat
 from handler.kg import entity_annotation
 from handler.train import (train, faq_add, faq_delete, faq_info, faq_list, faq_update,
-                           faq_delete_by_title, faq_update_by_title, unit_faq_list)
+                           faq_delete_by_title, faq_update_by_title)
 
 app = Sanic(__name__)
 app.config.from_object(config)
