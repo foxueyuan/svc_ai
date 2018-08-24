@@ -57,7 +57,7 @@ async def before_server_start(app, loop):
         loop=loop
     )
 
-    app.es = AsyncElasticsearch(hosts=['http://127.0.0.1:9200/'])
+    app.es = AsyncElasticsearch(hosts=conf.ES_HOST)
 
     token = json.loads(await app.rdb.get('token') or '{}')
     if not token or token['expiration'] < time.time() + 3600 * 24 * 7:
