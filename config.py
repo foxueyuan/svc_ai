@@ -20,7 +20,7 @@ SVC_KEYWORD_URL = 'https://aip.baidubce.com/rpc/2.0/nlp/v1/keyword'
 SVC_SIMNET_URL = 'https://aip.baidubce.com/rpc/2.0/nlp/v2/simnet'
 SVC_SPAM_URL = 'https://aip.baidubce.com/rest/2.0/antispam/v2/spam'
 
-SVC_UNIT_BOT_ID = 1673
+SVC_UNIT_BOT_ID = 10376
 SVC_UNIT_CHAT_URL = 'https://aip.baidubce.com/rpc/2.0/unit/bot/chat'
 SVC_UNIT_MODEL_LIST_URL = 'https://aip.baidubce.com/rpc/2.0/unit/model/list'
 SVC_UNIT_MODEL_TRAIN_URL = 'https://aip.baidubce.com/rpc/2.0/unit/model/train'
@@ -37,13 +37,13 @@ SVC_UNIT_FILE_UPLOAD_URL = 'https://aip.baidubce.com/file/2.0/unit/file/upload'
 
 UNIT_SKILL_ID = 0
 
-UNIT_FAQ_INTENT_ID_MAP = {'qa': 48233,
-                          'kg': 78733,
-                          'instruction': 76972}
+UNIT_FAQ_INTENT_ID_MAP = {'qa': 16472,
+                          'kg': 16474,
+                          'instruction': 16473}
 
 SVC_KG_ENTITY_ANNOTATION_URL = 'https://aip.baidubce.com/rpc/2.0/kg/v1/cognitive/entity_annotation'
 
-SVC_CALLBACK_URL = 'http://dev-foai.foschool.cn/ai/chat_with_asr_cb'
+SVC_CALLBACK_URL = 'http://foai.foschool.cn/ai/chat_with_asr_cb'
 
 
 TENCENT_AI_APPID = '1106800137'
