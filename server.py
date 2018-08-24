@@ -32,7 +32,7 @@ app.add_route(spam, '/ai/nlp/spam', methods=['POST'])
 app.add_route(wordcom, '/ai/nlp/wordcom', methods=['POST'])
 app.add_route(textchat, '/ai/nlp/textchat', methods=['POST'])
 app.add_route(unit_chat, '/ai/unit/bot/chat', methods=['POST'])
-app.add_route(unit_faq_list, '/ai/unit/faq/intent/<intent>/list', methods=['GET'])
+app.add_route(unit_faq_list, '/ai/unit/faq/intent/<intent>', methods=['GET'])
 
 app.add_route(faq_list, '/ai/faq/intent/<intent>', methods=['GET'])
 app.add_route(faq_add, '/ai/faq/intent/<intent>', methods=['PUT'])
