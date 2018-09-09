@@ -12,7 +12,7 @@ from elasticsearch_async import AsyncElasticsearch
 import config
 
 from handler.asr import asr
-from handler.unit import unit_chat
+from handler.unit import (unit_chat, unit_small_talk)
 from handler.nlp import lexer
 from handler.nlp import simnet
 from handler.nlp import spam
@@ -30,8 +30,9 @@ app.add_route(lexer, '/ai/nlp/lexer', methods=['POST'])
 app.add_route(simnet, '/ai/nlp/simnet', methods=['POST'])
 app.add_route(spam, '/ai/nlp/spam', methods=['POST'])
 app.add_route(wordcom, '/ai/nlp/wordcom', methods=['POST'])
-app.add_route(textchat, '/ai/nlp/textchat', methods=['POST'])
-app.add_route(unit_chat, '/ai/unit/bot/chat', methods=['POST'])
+app.add_route(textchat, '/ai/textchat', methods=['POST'])
+app.add_route(unit_chat, '/ai/chat', methods=['POST'])
+app.add_route(unit_small_talk, '/ai/smalltalk', methods=['POST'])
 
 app.add_route(faq_list, '/ai/faq/intent/<intent>', methods=['GET'])
 app.add_route(faq_add, '/ai/faq/intent/<intent>', methods=['PUT'])
