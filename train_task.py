@@ -20,7 +20,7 @@ dramatiq.set_broker(redis_broker)
 es = Elasticsearch(hosts=conf.ES_HOST)
 
 
-@dramatiq.actor
+@dramatiq.actor(queue_name='train')
 def add_faq_task(token, question, answer, doc_index, doc_type, doc_id):
     with limiter.acquire(raise_on_failure=False) as acquired:
         if not acquired:
@@ -54,7 +54,7 @@ def add_faq_task(token, question, answer, doc_index, doc_type, doc_id):
             print('add faq failed: {}'.format(resp_json['error_msg']))
 
 
-@dramatiq.actor
+@dramatiq.actor(queue_name='train')
 def update_faq_task(token, intent_id, faq_id, question, answer):
     with limiter.acquire(raise_on_failure=False) as acquired:
         if not acquired:
@@ -81,7 +81,7 @@ def update_faq_task(token, intent_id, faq_id, question, answer):
             print('update faq {} failed: {}'.format(faq_id, resp_json['error_msg']))
 
 
-@dramatiq.actor(priority=10)
+@dramatiq.actor(queue_name='train', priority=10)
 def train_task(token):
     with limiter.acquire(raise_on_failure=False) as acquired:
         if not acquired:
