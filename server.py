@@ -3,7 +3,6 @@
 import asyncio
 import aiohttp
 import aioredis
-import aiojobs
 import json
 import time
 import uvloop
@@ -13,7 +12,7 @@ from elasticsearch_async import AsyncElasticsearch
 import config
 
 from handler.asr import asr
-from handler.unit import (unit_chat, unit_small_talk)
+from handler.unit import (unit_chat, unit_faq_list, unit_small_talk)
 from handler.nlp import lexer
 from handler.nlp import simnet
 from handler.nlp import spam
@@ -34,6 +33,7 @@ app.add_route(wordcom, '/ai/nlp/wordcom', methods=['POST'])
 app.add_route(textchat, '/ai/textchat', methods=['POST'])
 app.add_route(unit_chat, '/ai/chat', methods=['POST'])
 app.add_route(unit_small_talk, '/ai/smalltalk', methods=['POST'])
+app.add_route(unit_faq_list, '/ai/unit/faq/intent/<intent>', methods=['GET'])
 
 app.add_route(faq_list, '/ai/faq/intent/<intent>', methods=['GET'])
 app.add_route(faq_add, '/ai/faq/intent/<intent>', methods=['PUT'])
@@ -90,6 +90,14 @@ async def fetch_aip_token(conf):
     result['expiration'] = int(time.time()) + result['expires_in']
     return result
 
+
+@app.route('/ai/keywords', methods=['GET'])
+async def add_keywords(request):
+    rdb = request.app.rdb
+    data = request.json
+
+    keywords = await rdb.smembers('keywords')
+    return response.json({'errcode': 0, 'errmsg': 'ok', 'data': keywords})
 
 @app.route('/ai/keywords', methods=['POST'])
 async def add_keywords(request):
