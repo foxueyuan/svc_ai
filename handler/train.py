@@ -6,7 +6,7 @@ from .unit import (unit_model_list, unit_model_delete,
                    unit_model_train, unit_faq_add,
                    unit_faq_update, unit_faq_delete)
 
-from ..train_task import (add_faq_task, update_faq_task, train_task)
+from train_task import (add_faq_task, update_faq_task, train_task)
 
 
 async def train(request):
