@@ -3,10 +3,11 @@
 import asyncio
 import aiohttp
 import aioredis
+import aiojobs
 import json
 import time
 import uvloop
-from sanic import Sanic
+from sanic import (Sanic, response)
 from elasticsearch_async import AsyncElasticsearch
 
 import config
@@ -44,7 +45,6 @@ app.add_route(faq_update_by_title, '/ai/faq/intent/<intent>', methods=['POST'])
 
 app.add_route(train, '/ai/train', methods=['GET'])
 
-
 app.add_route(entity_annotation, '/ai/kg/entity_annotation', methods=['POST'])
 
 
@@ -58,7 +58,7 @@ async def before_server_start(app, loop):
         loop=loop
     )
 
-    app.es = AsyncElasticsearch(hosts=['http://127.0.0.1:9200/'])
+    app.es = AsyncElasticsearch(hosts=conf.ES_HOST)
 
     token = json.loads(await app.rdb.get('token') or '{}')
     if not token or token['expiration'] < time.time() + 3600 * 24 * 7:
@@ -89,6 +89,16 @@ async def fetch_aip_token(conf):
 
     result['expiration'] = int(time.time()) + result['expires_in']
     return result
+
+
+@app.route('/ai/keywords', methods=['POST'])
+async def add_keywords(request):
+    rdb = request.app.rdb
+    data = request.json
+
+    keywords = data.get('keywords', [])
+    await rdb.sadd('keywords', *keywords)
+    return response.json({'errcode': 0, 'errmsg': 'ok'})
 
 
 if __name__ == "__main__":

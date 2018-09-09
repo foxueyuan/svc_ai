@@ -53,3 +53,5 @@ TENCENT_AI_APPKEY = 'YYcRW7I5J6L8RpQF'
 
 SVC_WORDCOM_URL = 'https://api.ai.qq.com/fcgi-bin/nlp/nlp_wordcom'
 SVC_TEXTCHAT_URL = 'https://api.ai.qq.com/fcgi-bin/nlp/nlp_textchat'
+
+ES_HOST = ['http://127.0.0.1:9200']

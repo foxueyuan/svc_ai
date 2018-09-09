@@ -159,7 +159,10 @@ async def textchat(request):
             async with session.post(conf.SVC_TEXTCHAT_URL, data=req_data) as resp:
                 resp_json = await resp.json()
 
-        result.update(resp_json.get('data', {}))
+        if resp_json.get('ret', -1) == 0 and 'answer' in resp_json.get('data', {}):
+            result['answer'] = resp_json['data']['answer']
+        else:
+            result['answer'] = '慢一点儿，我有点反应不过来了'
 
     else:
         result['errcode'] = 20001

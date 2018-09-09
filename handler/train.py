@@ -6,6 +6,8 @@ from .unit import (unit_model_list, unit_model_delete,
                    unit_model_train, unit_faq_add,
                    unit_faq_update, unit_faq_delete)
 
+from ..train_task import (add_faq_task, update_faq_task, train_task)
+
 
 async def train(request):
     conf = request.app.config
@@ -60,34 +62,49 @@ async def train(request):
         question = [{"question": q} for q in faq['question']]
         answer = [{"answer": faq['answer']}]
         if 'faqId' in faq:
-            await unit_faq_update(conf, token, faq['intentId'], faq['faqId'], question, answer)
+            update_faq_task.send(token, faq['intentId'], faq['faqId'], question, answer)
+            # await unit_faq_update(conf, token, faq['intentId'], faq['faqId'], question, answer)
         else:
-            faq_id = await unit_faq_add(conf, token, doc['_type'], question, answer)
-            if faq_id:
-                body = {
-                    "doc": {
-                        "skillId": conf.UNIT_SKILL_ID,
-                        "intentId": conf.UNIT_FAQ_INTENT_ID_MAP[doc['_type']],
-                        "faqId": faq_id
-                    }
-                }
-                await es.update(index=doc['_index'], doc_type=doc['_type'], body=body, id=doc['_id'])
+            add_faq_task.send(token, question, answer, doc['_index'], doc['_type'], doc['_id'])
+            # faq_id = await unit_faq_add(conf, token, doc['_type'], question, answer)
+            # if faq_id:
+            #     body = {
+            #         "doc": {
+            #             "skillId": conf.UNIT_SKILL_ID,
+            #             "intentId": conf.UNIT_FAQ_INTENT_ID_MAP[doc['_type']],
+            #             "faqId": faq_id
+            #         }
+            #     }
+            #     await es.update(index=doc['_index'], doc_type=doc['_type'], body=body, id=doc['_id'])
 
-    result = await unit_model_train(request)
+    train_task.send(token)
 
-    if result['errcode'] == 0:
-        await es.index(
-            index='train-index',
-            doc_type='train',
-            body={
-                'qa': [doc['_id'] for doc in qa_docs.get('hits', {}).get('hits', [])],
-                'kg': [doc['_id'] for doc in kg_docs.get('hits', {}).get('hits', [])],
-                'instruction': [doc['_id'] for doc in instruction_docs.get('hits', {}).get('hits', [])],
-                'createdAt': int(time.time())
-            }
-        )
+    # result = await unit_model_train(request)
 
-    return response.json(result)
+    # if result['errcode'] == 0:
+    #     await es.index(
+    #         index='train-index',
+    #         doc_type='train',
+    #         body={
+    #             'qa': [doc['_id'] for doc in qa_docs.get('hits', {}).get('hits', [])],
+    #             'kg': [doc['_id'] for doc in kg_docs.get('hits', {}).get('hits', [])],
+    #             'instruction': [doc['_id'] for doc in instruction_docs.get('hits', {}).get('hits', [])],
+    #             'createdAt': int(time.time())
+    #         }
+    #     )
+
+    await es.index(
+        index='train-index',
+        doc_type='train',
+        body={
+            'qa': [doc['_id'] for doc in qa_docs.get('hits', {}).get('hits', [])],
+            'kg': [doc['_id'] for doc in kg_docs.get('hits', {}).get('hits', [])],
+            'instruction': [doc['_id'] for doc in instruction_docs.get('hits', {}).get('hits', [])],
+            'createdAt': int(time.time())
+        }
+    )
+
+    return response.json({'errcode': 0, 'errmsg': 'ok'})
 
 
 async def faq_list(request, intent):
