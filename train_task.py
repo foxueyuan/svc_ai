@@ -1,21 +1,17 @@
 # -*- coding: utf-8 -*-
 
-import time
+import random
 import dramatiq
 import requests
 from elasticsearch import Elasticsearch
 from dramatiq.brokers.redis import RedisBroker
-# from dramatiq.results.backends import RedisBackend
-# from dramatiq.results import Results
 from dramatiq.rate_limits import ConcurrentRateLimiter
 from dramatiq.rate_limits.backends import RedisBackend
-
+from dramatiq.message import Message
 import config as conf
 
 
 redis_broker = RedisBroker(url="redis://127.0.0.1:16379/15")
-# result_backend = RedisBackend(url="redis://127.0.0.1:16379/14")
-# redis_broker.add_middleware(Results(backend=result_backend))
 limits_backend = RedisBackend(url="redis://127.0.0.1:16379/14")
 limiter = ConcurrentRateLimiter(limits_backend, "rate-limiter", limit=5)
 dramatiq.set_broker(redis_broker)
@@ -24,11 +20,26 @@ es = Elasticsearch(hosts=conf.ES_HOST)
 
 
 @dramatiq.actor(queue_name='train')
+def check_should_retry(msg, flag):
+    if flag is False:
+        message = Message(
+            queue_name=msg['queue_name'],
+            actor_name=msg['actor_name'],
+            args=msg['args'],
+            kwargs=msg['kwargs'],
+            options={'on_success': 'check_should_retry'},
+            message_id=msg['message_id'],
+            message_timestamp=msg['message_timestamp']
+        )
+        redis_broker.enqueue(message, delay=random.randrange(1000, 15000, 500))
+
+
+@dramatiq.actor(queue_name='train')
 def add_faq_task(token, question, answer, doc_index, doc_type, doc_id):
     with limiter.acquire(raise_on_failure=False) as acquired:
         if not acquired:
             print('limit reached')
-            return
+            return False
 
         url = '{}?access_token={}'.format(conf.SVC_UNIT_FAQ_ADD_URL, token)
 
@@ -53,8 +64,10 @@ def add_faq_task(token, question, answer, doc_index, doc_type, doc_id):
                 }
             }
             es.update(index=doc_index, doc_type=doc_type, body=body, id=doc_id)
+            return True
         else:
             print('add faq failed: {}'.format(resp_json['error_msg']))
+            return False
 
 
 @dramatiq.actor(queue_name='train')
@@ -62,7 +75,7 @@ def update_faq_task(token, intent_id, faq_id, question, answer):
     with limiter.acquire(raise_on_failure=False) as acquired:
         if not acquired:
             print('limit reached')
-            return
+            return False
 
         url = '{}?access_token={}'.format(conf.SVC_UNIT_FAQ_UPDATE_URL, token)
 
@@ -80,8 +93,10 @@ def update_faq_task(token, intent_id, faq_id, question, answer):
 
         if resp_json.get('error_code') == 0:
             print('update fap {} ok'.format(faq_id))
+            return True
         else:
             print('update faq {} failed: {}'.format(faq_id, resp_json['error_msg']))
+            return False
 
 
 @dramatiq.actor(queue_name='train', priority=10)
@@ -89,7 +104,7 @@ def train_task(token):
     with limiter.acquire(raise_on_failure=False) as acquired:
         if not acquired:
             print('limit reached')
-            return
+            return False
 
         url = '{}?access_token={}'.format(conf.SVC_UNIT_MODEL_TRAIN_URL, token)
 
@@ -113,7 +128,7 @@ def train_task(token):
         error_code = resp_json.get('error_code')
         if error_code == 0:
             print({'errcode': 0, 'errmsg': 'ok', 'result': resp_json['result']})
-        elif error_code == 292012:
-            print({'errcode': error_code, 'errmsg': '上一个训练还未结束，请等待半个小时后再尝试'})
+            return True
         else:
             print({'errcode': error_code, 'errmsg': resp_json['error_msg']})
+            return False
