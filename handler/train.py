@@ -89,7 +89,15 @@ async def faq_list(request, intent):
     args = request.raw_args
 
     if 'title' in args:
-        if 'term' in args and args['term'] == 'true':
+        if 'term' in args and args['term'] == 'false':
+            q = {
+                "query": {
+                    "match": {
+                        "title": args['title']
+                    }
+                }
+            }
+        else:
             q = {
                 "query": {
                     "bool": {
@@ -101,14 +109,6 @@ async def faq_list(request, intent):
                     }
                 },
                 "size": 1
-            }
-        else:
-            q = {
-                "query": {
-                    "match": {
-                        "title": args['title']
-                    }
-                }
             }
 
         res = await es.search(index='fo-index', doc_type=intent, body=q)
