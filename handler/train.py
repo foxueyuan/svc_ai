@@ -115,7 +115,8 @@ async def faq_list(request, intent):
                 'hits.hits._source.updatedAt'
             ]
         )
-        if res['hits']['hits']:
+
+        if len(res.get('hits', {}).get('hits', [])) > 0:
             doc = res['hits']['hits'][0]
             doc['_source']['_id'] = doc['_id']
             return response.json({'errcode': 0, 'errmsg': 'ok', 'result': doc['_source']})
@@ -159,7 +160,7 @@ async def faq_list(request, intent):
         ]
     )
 
-    if docs and len(docs['hits']['hits']) > 0:
+    if len(docs.get('hits', {}).get('hits', [])) > 0:
         rst_docs = []
         for doc in docs['hits']['hits']:
             rst_doc = doc['_source']
