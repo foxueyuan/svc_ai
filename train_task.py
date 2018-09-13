@@ -117,7 +117,7 @@ def train_task(token):
                 },
                 "data": {
                     "querySetIds": [],
-                    "patternSetIds": [2066]
+                    "patternSetIds": conf.UNIT_TRAIN_PATTERNSETIDS
                 }
             }
         }

@@ -38,7 +38,7 @@ SVC_UNIT_JOB_INFO_URL = 'https://aip.baidubce.com/rpc/2.0/unit/job/info'
 SVC_UNIT_FILE_UPLOAD_URL = 'https://aip.baidubce.com/file/2.0/unit/file/upload'
 
 UNIT_SKILL_ID = 0
-
+UNIT_TRAIN_PATTERNSETIDS = [2066]
 UNIT_FAQ_INTENT_ID_MAP = {'qa': 48233,
                           'kg': 78733,
                           'instruction': 76972}
