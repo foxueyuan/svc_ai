@@ -89,18 +89,27 @@ async def faq_list(request, intent):
     args = request.raw_args
 
     if 'title' in args:
-        q = {
-            "query": {
-                "bool": {
-                    "filter": {
-                        "match_phrase": {
-                            "title": args['title']
+        if 'term' in args and args['term'] == 'true':
+            q = {
+                "query": {
+                    "bool": {
+                        "filter": {
+                            "match_phrase": {
+                                "title": args['title']
+                            }
                         }
                     }
+                },
+                "size": 1
+            }
+        else:
+            q = {
+                "query": {
+                    "match": {
+                        "title": args['title']
+                    }
                 }
-            },
-            "size": 1
-        }
+            }
 
         res = await es.search(index='fo-index', doc_type=intent, body=q)
         if res['hits']['hits']:
