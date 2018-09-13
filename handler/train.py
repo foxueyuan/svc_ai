@@ -151,6 +151,7 @@ async def faq_list(request, intent):
         doc_type=intent,
         body=q,
         filter_path=[
+            'hits.total',
             'hits.hits._id',
             'hits.hits._source.title',
             'hits.hits._source.topic',
