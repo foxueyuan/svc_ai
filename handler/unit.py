@@ -109,7 +109,7 @@ async def unit_model_train(request):
             },
             "data": {
                 "querySetIds": [],
-                "patternSetIds": [1715]
+                "patternSetIds": conf.UNIT_TRAIN_PATTERNSETIDS
             }
         }
     }

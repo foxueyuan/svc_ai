@@ -88,35 +88,36 @@ async def faq_list(request, intent):
     es = request.app.es
     args = request.raw_args
 
-    if 'title' in args:
-        if 'term' in args and args['term'] == 'false':
-            q = {
-                "query": {
-                    "match": {
-                        "title": args['title']
-                    }
-                }
-            }
-        else:
-            q = {
-                "query": {
-                    "bool": {
-                        "filter": {
-                            "match_phrase": {
-                                "title": args['title']
-                            }
+    if 'title' in args and ('term' not in args or args['term'] != 'false'):
+        q = {
+            "query": {
+                "bool": {
+                    "filter": {
+                        "match_phrase": {
+                            "title": args['title']
                         }
                     }
-                },
-                "size": 1
-            }
+                }
+            },
+            "size": 1
+        }
 
-        res = await es.search(index='fo-index', doc_type=intent, body=q)
-        if res['hits']['hits']:
+        res = await es.search(
+            index='fo-index',
+            doc_type=intent,
+            body=q,
+            filter_path=[
+                'hits.hits._id',
+                'hits.hits._source.title',
+                'hits.hits._source.topic',
+                'hits.hits._source.question',
+                'hits.hits._source.answer',
+                'hits.hits._source.updatedAt'
+            ]
+        )
+
+        if len(res.get('hits', {}).get('hits', [])) > 0:
             doc = res['hits']['hits'][0]
-            doc['_source'].pop("skillId", None)
-            doc['_source'].pop("intentId", None)
-            doc['_source'].pop("faqId", None)
             doc['_source']['_id'] = doc['_id']
             return response.json({'errcode': 0, 'errmsg': 'ok', 'result': doc['_source']})
         else:
@@ -126,35 +127,41 @@ async def faq_list(request, intent):
     page_size = int(args.get('pageSize', 50))
     query_from = (page_no - 1) * page_size
 
-    res = await es.count(index='fo-index', doc_type=intent)
-
-    count = res['count']
-
-    if query_from >= count:
-        return response.json({'errcode': 0, 'errmsg': 'ok', 'result': {}})
-
-    q = {
-        "query": {
-            "match_all": {}
-        },
-        "from": query_from,
-        "size": page_size
-    }
+    if 'title' in args:
+        q = {
+            "query": {
+                "match": {
+                    "title": args['title']
+                }
+            },
+            "from": query_from,
+            "size": page_size
+        }
+    else:
+        q = {
+            "query": {
+                "match_all": {}
+            },
+            "from": query_from,
+            "size": page_size
+        }
 
     docs = await es.search(
         index='fo-index',
         doc_type=intent,
         body=q,
         filter_path=[
+            'hits.total',
             'hits.hits._id',
             'hits.hits._source.title',
             'hits.hits._source.topic',
             'hits.hits._source.question',
             'hits.hits._source.answer',
             'hits.hits._source.updatedAt'
-        ])
+        ]
+    )
 
-    if docs:
+    if len(docs.get('hits', {}).get('hits', [])) > 0:
         rst_docs = []
         for doc in docs['hits']['hits']:
             rst_doc = doc['_source']
@@ -166,7 +173,7 @@ async def faq_list(request, intent):
                 'errmsg': 'ok',
                 'result':
                     {
-                        "total": count,
+                        "total": docs['hits']['total'],
                         "docs": rst_docs
                     }
             }
