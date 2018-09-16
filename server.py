@@ -92,12 +92,13 @@ async def fetch_aip_token(conf):
 
 
 @app.route('/ai/keywords', methods=['GET'])
-async def add_keywords(request):
+async def get_keywords(request):
     rdb = request.app.rdb
     data = request.json
 
     keywords = await rdb.smembers('keywords')
     return response.json({'errcode': 0, 'errmsg': 'ok', 'data': keywords})
+
 
 @app.route('/ai/keywords', methods=['POST'])
 async def add_keywords(request):
