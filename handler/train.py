@@ -60,7 +60,7 @@ async def train(request):
     for doc in doc_set:
         faq = doc['_source']
         question = [{"question": q} for q in faq['question']]
-        answer = [{"answer": faq['answer']}]
+        answer = [{"answer": faq['answer'].replace('\r\n', '')}]
         if 'faqId' in faq:
             update_faq_task.send_with_options(args=(token, faq['intentId'], faq['faqId'], question, answer),
                                               on_success=check_should_retry)
